@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProfMarocGPT</title>
+    <title>ProfMarocGPT V1.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -76,7 +76,7 @@
 
     <div class="max-w-4xl mx-auto">
         <header class="text-center mb-10 p-6 bg-morocco-blue text-white rounded-xl shadow-lg no-print">
-            <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT 🇲🇦</h1>
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.5 🇲🇦</h1>
             <p class="text-morocco-gold text-lg">الذكاء الاصطناعي لتعلم متميز وهادف.</p>
         </header>
 
@@ -166,7 +166,7 @@
 
     <script type="module">
         // Gemini API Configuration
-        const apiKey = ""; // Leave as-is, the environment provides the key
+        const apiKey = "AIzaSyDr-16AZfW9ucQO2_UVltXQz65aDh1ppiw"; // Leave as-is, the environment provides the key
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
         // Utility Functions and DOM Elements
@@ -225,7 +225,7 @@
             const baseInstruction = `You are an expert pedagogical assistant for Moroccan teachers. Your task is to generate resources, focusing on the subject of ${subject} as taught in the Moroccan curriculum. The complexity must be appropriate for a ${grade} level.
             
             **CRITICAL CONTENT RULE:**
-            The output must be accurate and **grounded in information from Moroccan educational or curriculum resources**, using Google Search as a tool to find relevant, localized data for the topic: "${lesson}".
+            The output must be accurate and based on general educational knowledge for the topic: "${lesson}".
             
             **CRITICAL FORMATTING RULES:**
             The entire response MUST be generated in ${outputLanguage}.`;
@@ -243,7 +243,7 @@
                 return {
                     systemInstruction: baseInstruction + `
                         Your output must be a perfectly formatted JSON array containing a 7-slide presentation outline (including a Title Slide and Conclusion Slide). Each slide must have a title, 3-5 concise key points, and a suggestion for a visual aid. The entire response must be perfectly formatted JSON according to the provided schema.`,
-                    userQuery: `Generate a 7-slide presentation outline for the lesson: "${lesson}" in ${outputLanguage}.` // Language instruction moved to userQuery
+                    userQuery: `Generate a 7-slide presentation outline for the lesson: "${lesson}" in ${outputLanguage}.` // Language instruction in userQuery
                 };
             }
         }
@@ -254,17 +254,9 @@
          * @returns {Array<object>} Formatted array of sources.
          */
         function extractSources(result) {
-            let sources = [];
-            const groundingMetadata = result?.candidates?.[0]?.groundingMetadata;
-            if (groundingMetadata && groundingMetadata.groundingAttributions) {
-                sources = groundingMetadata.groundingAttributions
-                    .map(attribution => ({
-                        uri: attribution.web?.uri,
-                        title: attribution.web?.title,
-                    }))
-                    .filter(source => source.uri && source.title); 
-            }
-            return sources;
+            // Since we removed the search tool, this will now always return an empty array,
+            // but we keep the function structure for future re-integration.
+            return [];
         }
 
         /**
@@ -319,23 +311,7 @@
             
             outputContainer.innerHTML = htmlContent;
 
-            // Append citations if available
-            if (sources.length > 0) {
-                const sourceList = sources.map((source) => {
-                    const displayTitle = source.title ? source.title : 'Source Link';
-                    return `<li class="mt-1 ${isRTL ? 'list-none' : 'list-decimal list-inside'}">
-                        <a href="${source.uri}" target="_blank" class="citation-link hover:text-morocco-green">${displayTitle}</a>
-                    </li>`;
-                }).join('');
-
-                const citationBlock = `
-                    <div class="citations-container ${isRTL ? 'rtl' : 'ltr'}">
-                        <p class="font-semibold mb-2">Sources Referenced (للمزيد من المعلومات):</p>
-                        <ol class="pl-0">${sourceList}</ol>
-                    </div>
-                `;
-                outputContainer.innerHTML += citationBlock;
-            }
+            // Since sources is now an empty array, the citation block won't render.
             
             // Show the print button when content is successfully rendered
             printBtn.classList.remove('hidden');
@@ -373,11 +349,11 @@
             const { systemInstruction, userQuery } = buildPrompts(grade, subject, lesson, outputType, outputLanguage);
             const generationConfig = getStructuredSchema(outputType);
             
-            // Add Google Search Grounding tool
+            // CONFIGURE PAYLOAD WITHOUT SEARCH TOOL
             const payload = {
                 contents: [{ parts: [{ text: userQuery }] }],
                 systemInstruction: { parts: [{ text: systemInstruction }] },
-                tools: [{ "google_search": {} }] // THIS ENABLES SEARCH
+                // Removed: tools: [{ "google_search": {} }] 
             };
             
             if (generationConfig) {
@@ -403,6 +379,7 @@
                     } else if (response.status === 429 && attempt < maxRetries - 1) {
                         continue;
                     } else {
+                        // Throw the error with status and text for clearer debugging
                         throw new Error(`API returned status ${response.status}: ${response.statusText}`);
                     }
                 } catch (error) {
@@ -419,13 +396,16 @@
             generateBtn.textContent = 'Generate Resource';
 
             if (result.error) {
-                outputContainer.innerHTML = `<p class="text-red-500 text-center">Generation Failed: ${result.error}</p>`;
+                // If it fails again, display the specific error message to the user
+                outputContainer.innerHTML = `<p class="text-red-500 text-center">Generation Failed: ${result.error}</p>
+                                             <p class="text-sm text-gray-500 text-center mt-2">If the error persists, please try a different subject or language.</p>`;
                 return;
             }
 
             try {
                 const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                const sources = extractSources(result);
+                // Sources will be an empty array now, as the tool is removed.
+                const sources = extractSources(result); 
 
                 if (!textPart) {
                     throw new Error("Received an empty response from the AI.");
@@ -443,7 +423,7 @@
             } catch (e) {
                 console.error("Error processing AI response:", e);
                 console.log("Raw Text Received:", result?.candidates?.[0]?.content?.parts?.[0]?.text);
-                outputContainer.innerHTML = `<p class="text-red-500 text-center">Error: Could not process AI response for a ${outputType}. The model may have returned invalid JSON. Please try again.</p>`;
+                outputContainer.innerHTML = `<p class="text-red-500 text-center">Error: Could not process AI response for a ${outputType}. The model may have returned invalid JSON or the connection was interrupted. Please try again.</p>`;
             }
         }
         
