@@ -44,6 +44,19 @@
         }
         /* Ensure Arabic/Darija content displays right-to-left */
         .rtl { direction: rtl; text-align: right; }
+
+        /* Style for the citation container */
+        .citations-container {
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+        .citation-link {
+            color: #1a2e4f;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans min-h-screen p-4 md:p-8">
@@ -134,7 +147,6 @@
         const outputContainer = document.getElementById('outputContainer');
         const generateBtn = document.getElementById('generateBtn');
         const outputTitle = document.getElementById('outputTitle');
-        const outputType = 'summary'; // Fixed value based on user request
 
         /**
          * Exponential backoff for API retries.
@@ -153,13 +165,17 @@
          */
         function buildPrompts(grade, subject, lesson, outputLanguage) {
             // STRONGLY ENFORCED plain text output to fix the Markdown/LaTeX rendering issue.
-            const baseInstruction = `You are an expert pedagogical assistant for Moroccan teachers. Your task is to generate a concise, easy-to-read lesson summary suitable for comprehension check. The complexity must be appropriate for a ${grade} level, focusing on the subject of ${subject}. 
+            // NEW INSTRUCTION: Focus the search on Moroccan context.
+            const baseInstruction = `You are an expert pedagogical assistant for Moroccan teachers. Your task is to generate a concise, easy-to-read lesson summary suitable for comprehension check. The complexity must be appropriate for a ${grade} level, focusing on the subject of ${subject} as taught in the Moroccan curriculum.
             
             **CRITICAL FORMATTING RULES:**
             1. The output must be **plain, clean text**.
             2. **DO NOT** use any Markdown formatting characters (like *, **, #, ##, ###, >, ---, |).
             3. **DO NOT** use any LaTeX or mathematical notation symbols (like $$, \\, \text). Use words (e.g., "Positive charge") instead of symbols (e.g., $Na^+$).
-            4. The entire response MUST be generated in ${outputLanguage}.`;
+            4. The entire response MUST be generated in ${outputLanguage}.
+            
+            **CRITICAL CONTENT RULE:**
+            The summary must be accurate and **grounded in information from Moroccan educational or curriculum resources**, using Google Search as a tool to find relevant, localized data for the topic.`;
 
             const userQuery = `Generate the simple, easy-to-comprehend lesson summary for the topic: "${lesson}".`;
             
@@ -170,11 +186,31 @@
         }
 
         /**
-         * Renders the generated content.
+         * Extracts and formats grounding sources from the API response.
+         * @param {object} result - The full API response object.
+         * @returns {Array<object>} Formatted array of sources.
+         */
+        function extractSources(result) {
+            let sources = [];
+            const groundingMetadata = result?.candidates?.[0]?.groundingMetadata;
+            if (groundingMetadata && groundingMetadata.groundingAttributions) {
+                sources = groundingMetadata.groundingAttributions
+                    .map(attribution => ({
+                        uri: attribution.web?.uri,
+                        title: attribution.web?.title,
+                    }))
+                    .filter(source => source.uri && source.title); 
+            }
+            return sources;
+        }
+
+        /**
+         * Renders the generated content and citations.
          * @param {string} content - The raw text summary.
+         * @param {Array<object>} sources - Array of sources for citation.
          * @param {string} outputLanguage 
          */
-        function renderContent(content, outputLanguage) {
+        function renderContent(content, sources, outputLanguage) {
             outputContainer.innerHTML = '';
             
             // Determine text direction for Arabic/Darija
@@ -186,12 +222,31 @@
             // Replaces common Markdown list indicators with simple HTML formatting
             let cleanContent = content.replace(/^- /gm, '• ').replace(/^\* /gm, '• ');
 
-            const summaryHtml = `
+            let summaryHtml = `
                 <div class="p-4 bg-gray-50 border-l-4 border-morocco-blue rounded-r-lg 
                     ${isRTL ? 'border-r-4 border-l-0 rounded-l-lg rounded-r-none' : ''}">
                     <p class="text-lg whitespace-pre-wrap leading-relaxed">${cleanContent}</p>
                 </div>
             `;
+
+            // Append citations if available
+            if (sources.length > 0) {
+                const sourceList = sources.map((source, index) => {
+                    const displayTitle = source.title ? source.title : 'Source Link';
+                    return `<li class="mt-1 ${isRTL ? 'list-none' : 'list-decimal list-inside'}">
+                        <a href="${source.uri}" target="_blank" class="citation-link hover:text-morocco-green">${displayTitle}</a>
+                    </li>`;
+                }).join('');
+
+                const citationBlock = `
+                    <div class="citations-container ${isRTL ? 'rtl' : 'ltr'}">
+                        <p class="font-semibold mb-2">Sources Referenced (للمزيد من المعلومات):</p>
+                        <ol class="pl-0">${sourceList}</ol>
+                    </div>
+                `;
+                summaryHtml += citationBlock;
+            }
+
             outputContainer.innerHTML = summaryHtml;
         }
 
@@ -203,7 +258,6 @@
             const outputLanguage = document.getElementById('outputLanguage').value;
 
             if (!subject || !lesson) {
-                // Use a non-alert message box for user feedback
                 outputContainer.innerHTML = '<p class="text-red-500 text-center">Please provide a Subject and a Lesson Topic.</p>';
                 return;
             }
@@ -216,9 +270,11 @@
 
             const { systemInstruction, userQuery } = buildPrompts(grade, subject, lesson, outputLanguage);
             
+            // NEW: Add Google Search Grounding tool
             const payload = {
                 contents: [{ parts: [{ text: userQuery }] }],
                 systemInstruction: { parts: [{ text: systemInstruction }] },
+                tools: [{ "google_search": {} }] // THIS ENABLES SEARCH
             };
             
             // Exponential backoff loop
@@ -226,7 +282,7 @@
             const maxRetries = 3;
             for (let attempt = 0; attempt < maxRetries; attempt++) {
                 try {
-                    await wait(attempt); // Wait before the next attempt
+                    await wait(attempt);
                     
                     response = await fetch(apiUrl, {
                         method: 'POST',
@@ -236,9 +292,8 @@
 
                     if (response.ok) {
                         result = await response.json();
-                        break; // Success, exit loop
+                        break; 
                     } else if (response.status === 429 && attempt < maxRetries - 1) {
-                        // Rate limit error handling (silent retry)
                         continue;
                     } else {
                         throw new Error(`API returned status ${response.status}: ${response.statusText}`);
@@ -263,13 +318,14 @@
 
             try {
                 const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                const sources = extractSources(result);
 
                 if (!textPart) {
                     throw new Error("Received an empty response from the AI.");
                 }
 
-                // Render the clean plain text summary
-                renderContent(textPart, outputLanguage);
+                // Render the clean plain text summary with sources
+                renderContent(textPart, sources, outputLanguage);
 
             } catch (e) {
                 console.error("Error processing AI response:", e);
