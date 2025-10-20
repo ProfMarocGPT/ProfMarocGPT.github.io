@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProfMarocGPT V1.5</title>
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- ✅ MathJax for LaTeX rendering -->
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -21,8 +31,10 @@
             }
         }
     </script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
         .loading-dots {
             display: flex;
             justify-content: center;
@@ -38,37 +50,18 @@
         }
         .loading-dots div:nth-child(1) { animation-delay: -0.32s; }
         .loading-dots div:nth-child(2) { animation-delay: -0.16s; }
+
         @keyframes bounce {
             0%, 80%, 100% { transform: scale(0); }
             40% { transform: scale(1.0); }
         }
-        /* Ensure Arabic/Darija content displays right-to-left */
+
         .rtl { direction: rtl; text-align: right; }
 
-        /* Style for the citation container */
-        .citations-container {
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e5e7eb;
-            font-size: 0.875rem;
-            color: #6b7280;
-        }
-        .citation-link {
-            color: #1a2e4f;
-            text-decoration: underline;
-        }
-
-        /* Print styles: Hide control panel and buttons when printing */
         @media print {
-            .no-print {
-                display: none !important;
-            }
-            main.grid {
-                display: block; /* Remove grid for printing to use full width */
-            }
-            section.lg\\:col-span-2 {
-                width: 100%;
-            }
+            .no-print { display: none !important; }
+            main.grid { display: block; }
+            section.lg\:col-span-2 { width: 100%; }
         }
     </style>
 </head>
@@ -81,16 +74,13 @@
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-            <!-- Control Panel (Input) - Added 'no-print' class -->
             <section class="lg:col-span-1 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-8 no-print">
                 <h2 class="text-2xl font-bold text-morocco-blue mb-5 border-b pb-3">Lesson Details</h2>
 
                 <div class="space-y-4">
-                    <!-- Grade Select -->
                     <div>
                         <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
-                        <select id="grade" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                        <select id="grade" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue">
                             <option value="Primary School (CP, CE1, CE2)">Primary School</option>
                             <option value="Middle School (Collège)">Middle School</option>
                             <option value="High School (Lycée)">High School</option>
@@ -98,31 +88,27 @@
                         </select>
                     </div>
 
-                    <!-- Subject Input -->
                     <div>
                         <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-                        <input type="text" id="subject" value="Physics" placeholder="e.g., Arabic Language, Physics, History" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                        <input type="text" id="subject" value="Physics" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue">
                     </div>
 
-                    <!-- Lesson Input -->
                     <div>
                         <label for="lesson" class="block text-sm font-medium text-gray-700 mb-1">Lesson Topic / Title</label>
-                        <input type="text" id="lesson" value="Les Atomes et Les Ions" placeholder="e.g., Photosynthesis, Verb Conjugation, Fractions" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                        <input type="text" id="lesson" value="Les Atomes et Les Ions" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue">
                     </div>
-                    
-                    <!-- Resource Type Select (RESTORED) -->
+
                     <div>
                         <label for="outputType" class="block text-sm font-medium text-gray-700 mb-1">Resource Type</label>
-                        <select id="outputType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                        <select id="outputType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue">
                             <option value="summary">Simple Lesson Summary (Text)</option>
                             <option value="presentation">Presentation Outline (Slides)</option>
                         </select>
                     </div>
-                    
-                    <!-- Output Language Select -->
+
                     <div>
                         <label for="outputLanguage" class="block text-sm font-medium text-gray-700 mb-1">Output Language</label>
-                        <select id="outputLanguage" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                        <select id="outputLanguage" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue">
                             <option value="Standard Arabic">Standard Arabic (الفصحى)</option>
                             <option value="Moroccan Arabic (Darija)">Moroccan Arabic (الدارجة)</option>
                             <option value="French">French (Français)</option>
@@ -130,306 +116,159 @@
                         </select>
                     </div>
 
-                    <!-- Generate Button -->
-                    <button id="generateBtn"
-                            class="w-full py-3 px-4 bg-morocco-green text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-300 transform hover:scale-[1.01] flex items-center justify-center disabled:opacity-50">
+                    <button id="generateBtn" class="w-full py-3 px-4 bg-morocco-green text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-300">
                         Generate Resource
                     </button>
                 </div>
             </section>
 
-            <!-- Output Display -->
             <section class="lg:col-span-2 p-6 bg-white rounded-xl shadow-2xl">
                 <h2 id="outputTitle" class="text-2xl font-bold text-morocco-blue mb-5 border-b pb-3">Generated Content</h2>
-                
-                <!-- PRINT BUTTON -->
+
                 <div class="text-right mb-4">
-                    <button id="printBtn" 
-                            class="hidden py-2 px-4 bg-morocco-blue text-white text-sm font-semibold rounded-lg shadow-md hover:bg-blue-700 transition duration-300 disabled:opacity-50 no-print">
+                    <button id="printBtn" class="hidden py-2 px-4 bg-morocco-blue text-white text-sm font-semibold rounded-lg shadow-md hover:bg-blue-700 no-print">
                         🖨️ Print Resource
                     </button>
                 </div>
 
                 <div id="loadingIndicator" class="hidden loading-dots my-10">
-                    <div class="h-4 w-4"></div>
-                    <div class="h-4 w-4"></div>
-                    <div class="h-4 w-4"></div>
+                    <div class="h-4 w-4"></div><div class="h-4 w-4"></div><div class="h-4 w-4"></div>
                 </div>
 
                 <div id="outputContainer" class="text-gray-700 space-y-4">
                     <p class="text-center text-gray-500 italic">Select your lesson details and click "Generate" to create a new resource.</p>
                 </div>
             </section>
-
         </main>
     </div>
 
     <script type="module">
-        // Gemini API Configuration
-        const apiKey = "AIzaSyDr-16AZfW9ucQO2_UVltXQz65aDh1ppiw"; // Leave as-is, the environment provides the key
+        const apiKey = "AIzaSyDr-16AZfW9ucQO2_UVltXQz65aDh1ppiw";
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
 
-        // Utility Functions and DOM Elements
         const loadingIndicator = document.getElementById('loadingIndicator');
         const outputContainer = document.getElementById('outputContainer');
         const generateBtn = document.getElementById('generateBtn');
         const outputTitle = document.getElementById('outputTitle');
-        const printBtn = document.getElementById('printBtn'); // Reference to the new print button
+        const printBtn = document.getElementById('printBtn');
 
-        /**
-         * Exponential backoff for API retries.
-         * @param {number} attempt
-         * @returns {Promise<void>}
-         */
-        const wait = (attempt) => new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
+        const wait = (attempt) => new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
 
-        /**
-         * Retrieves the specific JSON schema for the chosen output type.
-         * @param {string} type - 'summary' or 'presentation'
-         * @returns {object|null} The generationConfig object for the Gemini API call.
-         */
         function getStructuredSchema(type) {
             if (type === 'presentation') {
                 return {
                     responseMimeType: "application/json",
                     responseSchema: {
                         type: "ARRAY",
-                        description: "A list of slides for a presentation outline.",
                         items: {
                             type: "OBJECT",
                             properties: {
-                                slideNumber: { type: "INTEGER", description: "The slide index, starting at 1." },
-                                slideTitle: { type: "STRING", description: "The main title of the slide." },
-                                keyPoints: { type: "ARRAY", description: "3 to 5 simple, concise bullet points for the slide.", items: { type: "STRING" } },
-                                visualIdea: { type: "STRING", description: "A suggested visual aid (image, diagram, chart) for this slide." }
+                                slideNumber: { type: "INTEGER" },
+                                slideTitle: { type: "STRING" },
+                                keyPoints: { type: "ARRAY", items: { type: "STRING" } },
+                                visualIdea: { type: "STRING" }
                             },
-                            required: ["slideNumber", "slideTitle", "keyPoints", "visualIdea"]
+                            required: ["slideTitle", "keyPoints", "visualIdea"]
                         }
                     }
                 };
             }
-            // Summary uses plain text (no structured schema)
             return null;
         }
 
-        /**
-         * Constructs the system prompt and user query based on user inputs.
-         * @param {string} grade
-         * @param {string} subject
-         * @param {string} lesson
-         * @param {string} type
-         * @param {string} outputLanguage
-         * @returns {{systemInstruction: string, userQuery: string}}
-         */
         function buildPrompts(grade, subject, lesson, type, outputLanguage) {
-            const baseInstruction = `You are an expert pedagogical assistant for Moroccan teachers. Your task is to generate resources, focusing on the subject of ${subject} as taught in the Moroccan curriculum. The complexity must be appropriate for a ${grade} level.
-            
-            **CRITICAL CONTENT RULE:**
-            The output must be accurate and based on general educational knowledge for the topic: "${lesson}".
-            
-            **CRITICAL FORMATTING RULES:**
-            The entire response MUST be generated in ${outputLanguage}.`;
+            const baseInstruction = `You are an expert Moroccan teacher assistant. Generate educational content for ${subject}, appropriate for ${grade}.`;
 
-            if (type === 'summary') {
+            if (type === 'presentation') {
                 return {
-                    systemInstruction: baseInstruction + `
-                        Your output must be a concise, easy-to-read lesson summary suitable for comprehension check.
-                        1. The output must be **plain, clean text**.
-                        2. **DO NOT** use any Markdown formatting characters (like *, **, #, ##, ###, >, ---, |).
-                        3. **DO NOT** use any LaTeX or mathematical notation symbols. Use words instead of symbols where possible.`,
-                    userQuery: `Generate the simple, easy-to-comprehend lesson summary for the topic: "${lesson}".`
+                    systemInstruction: baseInstruction + ` Use LaTeX notation for all math (e.g., $\\sqrt{a}$, $7^2=49$). Return valid JSON.`,
+                    userQuery: `Create a 7-slide presentation on "${lesson}" in ${outputLanguage}, keeping all LaTeX intact.`
                 };
-            } else if (type === 'presentation') {
+            } else {
                 return {
-                    systemInstruction: baseInstruction + `
-                        Your output must be a perfectly formatted JSON array containing a 7-slide presentation outline (including a Title Slide and Conclusion Slide). Each slide must have a title, 3-5 concise key points, and a suggestion for a visual aid. The entire response must be perfectly formatted JSON according to the provided schema.`,
-                    userQuery: `Generate a 7-slide presentation outline for the lesson: "${lesson}" in ${outputLanguage}.` // Language instruction in userQuery
+                    systemInstruction: baseInstruction + ` Keep LaTeX math notation unchanged (e.g., $\\sqrt{49}$).`,
+                    userQuery: `Generate a simple text summary for "${lesson}" in ${outputLanguage}. Keep math symbols intact.`
                 };
             }
         }
 
-        /**
-         * Extracts and formats grounding sources from the API response.
-         * @param {object} result - The full API response object.
-         * @returns {Array<object>} Formatted array of sources.
-         */
-        function extractSources(result) {
-            // Since we removed the search tool, this will now always return an empty array,
-            // but we keep the function structure for future re-integration.
-            return [];
-        }
-
-        /**
-         * Renders the generated content.
-         * @param {object|string} content - The parsed JSON object or the raw text summary.
-         * @param {Array<object>} sources - Array of sources for citation.
-         * @param {string} type - The resource type.
-         * @param {string} outputLanguage 
-         */
-        function renderContent(content, sources, type, outputLanguage) {
+        function renderContent(content, _, type, outputLanguage) {
             outputContainer.innerHTML = '';
-            
-            // Determine text direction for Arabic/Darija
             const isRTL = outputLanguage.includes('Arabic');
             outputContainer.className = `text-gray-700 space-y-6 ${isRTL ? 'rtl' : ''}`;
-            
-            let htmlContent = '';
+            let html = '';
 
             if (type === 'summary') {
-                outputTitle.textContent = "Lesson Summary";
-                let cleanContent = content.replace(/^- /gm, '• ').replace(/^\* /gm, '• ');
-                
-                htmlContent = `
-                    <div class="p-4 bg-gray-50 border-l-4 border-morocco-blue rounded-r-lg 
-                        ${isRTL ? 'border-r-4 border-l-0 rounded-l-lg rounded-r-none' : ''}">
-                        <p class="text-lg whitespace-pre-wrap leading-relaxed">${cleanContent}</p>
+                html = `<div class="p-4 bg-gray-50 border-l-4 border-morocco-blue rounded-r-lg">
+                            <p class="text-lg whitespace-pre-wrap leading-relaxed">${content}</p>
+                        </div>`;
+            } else {
+                html = content.map((slide, i) => `
+                    <div class="p-6 bg-white rounded-xl shadow-md border-t-4 border-morocco-gold">
+                        <p class="text-sm font-bold text-morocco-gold mb-1">SLIDE ${slide.slideNumber || i + 1}/7</p>
+                        <h3 class="text-xl font-bold text-morocco-blue mb-3">${slide.slideTitle}</h3>
+                        <ul class="list-disc pl-5 text-sm space-y-1">
+                            ${slide.keyPoints.map(pt => `<li>${pt}</li>`).join('')}
+                        </ul>
+                        <div class="p-3 bg-gray-100 rounded-lg text-xs italic mt-3">**Visual Suggestion:** ${slide.visualIdea}</div>
                     </div>
-                `;
-            } else if (type === 'presentation' && Array.isArray(content)) {
-                outputTitle.textContent = "Presentation Outline (7 Slides)";
-
-                htmlContent = content.map((slide, index) => {
-                    const pointsHtml = slide.keyPoints.map(point => `<li>${point}</li>`).join('');
-                    
-                    return `
-                        <div class="p-6 bg-white rounded-xl shadow-md border-t-4 border-morocco-gold transition duration-300 hover:shadow-xl">
-                            <p class="text-sm font-bold text-morocco-gold mb-1">SLIDE ${slide.slideNumber || index + 1} / 7</p>
-                            <h3 class="text-xl font-bold text-morocco-blue mb-3">${slide.slideTitle}</h3>
-                            <div class="mb-4">
-                                <p class="font-semibold text-gray-800 mb-1">Key Points:</p>
-                                <ul class="${isRTL ? 'list-disc pr-5' : 'list-disc pl-5'} text-sm space-y-1">
-                                    ${pointsHtml}
-                                </ul>
-                            </div>
-                            <div class="p-3 bg-gray-100 rounded-lg text-xs italic">
-                                **Visual Suggestion:** ${slide.visualIdea}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+                `).join('');
             }
-            
-            outputContainer.innerHTML = htmlContent;
 
-            // Since sources is now an empty array, the citation block won't render.
-            
-            // Show the print button when content is successfully rendered
+            outputContainer.innerHTML = html;
             printBtn.classList.remove('hidden');
+            MathJax.typesetPromise(); // ✅ re-render LaTeX dynamically
         }
 
-        /**
-         * Triggers the browser's native print function.
-         */
-        function printResource() {
-            window.print();
-        }
-
-        // Main Content Generation Function
         async function generateContent() {
-            // Hide print button immediately on start
             printBtn.classList.add('hidden');
-            
             const grade = document.getElementById('grade').value;
             const subject = document.getElementById('subject').value.trim();
             const lesson = document.getElementById('lesson').value.trim();
-            const outputType = document.getElementById('outputType').value; // Get resource type
-            const outputLanguage = document.getElementById('outputLanguage').value;
+            const type = document.getElementById('outputType').value;
+            const lang = document.getElementById('outputLanguage').value;
 
-            if (!subject || !lesson) {
-                outputContainer.innerHTML = '<p class="text-red-500 text-center">Please provide a Subject and a Lesson Topic.</p>';
-                return;
-            }
+            if (!subject || !lesson) return outputContainer.innerHTML = '<p class="text-red-500 text-center">Please fill in all fields.</p>';
 
-            // UI State Change (Loading)
             generateBtn.disabled = true;
             generateBtn.textContent = 'Generating...';
-            outputContainer.innerHTML = '';
             loadingIndicator.classList.remove('hidden');
+            outputContainer.innerHTML = '';
 
-            const { systemInstruction, userQuery } = buildPrompts(grade, subject, lesson, outputType, outputLanguage);
-            const generationConfig = getStructuredSchema(outputType);
-            
-            // CONFIGURE PAYLOAD WITHOUT SEARCH TOOL
-            const payload = {
-                contents: [{ parts: [{ text: userQuery }] }],
-                systemInstruction: { parts: [{ text: systemInstruction }] },
-                // Removed: tools: [{ "google_search": {} }] 
-            };
-            
-            if (generationConfig) {
-                payload.generationConfig = generationConfig;
-            }
-            
-            // Exponential backoff loop
-            let response, result;
-            const maxRetries = 3;
-            for (let attempt = 0; attempt < maxRetries; attempt++) {
+            const { systemInstruction, userQuery } = buildPrompts(grade, subject, lesson, type, lang);
+            const schema = getStructuredSchema(type);
+            const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: systemInstruction }] } };
+            if (schema) payload.generationConfig = schema;
+
+            let result;
+            for (let attempt = 0; attempt < 3; attempt++) {
                 try {
                     await wait(attempt);
-                    
-                    response = await fetch(apiUrl, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (response.ok) {
-                        result = await response.json();
-                        break; 
-                    } else if (response.status === 429 && attempt < maxRetries - 1) {
-                        continue;
-                    } else {
-                        // Throw the error with status and text for clearer debugging
-                        throw new Error(`API returned status ${response.status}: ${response.statusText}`);
-                    }
-                } catch (error) {
-                    console.error("Fetch error:", error);
-                    result = { error: error.message }; 
-                    break;
+                    const res = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!res.ok) throw new Error(res.statusText);
+                    result = await res.json(); break;
+                } catch (err) {
+                    if (attempt === 2) result = { error: err.message };
                 }
             }
 
-
-            // UI State Change (Finished)
             loadingIndicator.classList.add('hidden');
             generateBtn.disabled = false;
             generateBtn.textContent = 'Generate Resource';
 
-            if (result.error) {
-                // If it fails again, display the specific error message to the user
-                outputContainer.innerHTML = `<p class="text-red-500 text-center">Generation Failed: ${result.error}</p>
-                                             <p class="text-sm text-gray-500 text-center mt-2">If the error persists, please try a different subject or language.</p>`;
-                return;
-            }
+            if (result.error) return outputContainer.innerHTML = `<p class="text-red-500 text-center">${result.error}</p>`;
 
             try {
-                const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
-                // Sources will be an empty array now, as the tool is removed.
-                const sources = extractSources(result); 
-
-                if (!textPart) {
-                    throw new Error("Received an empty response from the AI.");
-                }
-
-                if (outputType === 'summary') {
-                    // Summary is plain text
-                    renderContent(textPart, sources, outputType, outputLanguage);
-                } else if (outputType === 'presentation') {
-                    // Presentation is JSON
-                    const parsedContent = JSON.parse(textPart);
-                    renderContent(parsedContent, sources, outputType, outputLanguage);
-                }
-
+                const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (type === 'presentation') renderContent(JSON.parse(text), [], type, lang);
+                else renderContent(text, [], type, lang);
             } catch (e) {
-                console.error("Error processing AI response:", e);
-                console.log("Raw Text Received:", result?.candidates?.[0]?.content?.parts?.[0]?.text);
-                outputContainer.innerHTML = `<p class="text-red-500 text-center">Error: Could not process AI response for a ${outputType}. The model may have returned invalid JSON or the connection was interrupted. Please try again.</p>`;
+                outputContainer.innerHTML = `<p class="text-red-500 text-center">Error parsing response.</p>`;
             }
         }
-        
-        // Attach event listeners
+
         generateBtn.addEventListener('click', generateContent);
-        printBtn.addEventListener('click', printResource);
+        printBtn.addEventListener('click', () => window.print());
     </script>
 </body>
 </html>
