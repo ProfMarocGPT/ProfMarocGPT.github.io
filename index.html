@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lesson Generator for Moroccan Teachers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'morocco-blue': '#1a2e4f',
+                        'morocco-gold': '#ffc107',
+                        'morocco-green': '#008000',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading-dots div {
+            width: 10px;
+            height: 10px;
+            margin: 0 5px;
+            background-color: #ffc107;
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .loading-dots div:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots div:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+        /* Ensure Arabic/Darija content displays right-to-left */
+        .rtl { direction: rtl; text-align: right; }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans min-h-screen p-4 md:p-8">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="text-center mb-10 p-6 bg-morocco-blue text-white rounded-xl shadow-lg">
+            <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT 🇲🇦</h1>
+            <p class="text-morocco-gold text-lg">AI Li3alomin Sihi Ou Wa3ar.</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Control Panel (Input) -->
+            <section class="lg:col-span-1 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-8">
+                <h2 class="text-2xl font-bold text-morocco-blue mb-5 border-b pb-3">Lesson Details</h2>
+
+                <div class="space-y-4">
+                    <!-- Grade Select -->
+                    <div>
+                        <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
+                        <select id="grade" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                            <option value="Primary School (CP, CE1, CE2)">Primary School</option>
+                            <option value="Middle School (Collège)">Middle School</option>
+                            <option value="High School (Lycée)">High School</option>
+                            <option value="University/Higher Education">University/Higher Education</option>
+                        </select>
+                    </div>
+
+                    <!-- Subject Input -->
+                    <div>
+                        <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                        <input type="text" id="subject" value="History" placeholder="e.g., Arabic Language, Physics, History" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                    </div>
+
+                    <!-- Lesson Input -->
+                    <div>
+                        <label for="lesson" class="block text-sm font-medium text-gray-700 mb-1">Lesson Topic / Title</label>
+                        <input type="text" id="lesson" value="The Almoravid Dynasty in Morocco" placeholder="e.g., Photosynthesis, Verb Conjugation, Fractions" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                    </div>
+
+                    <!-- Output Type Select -->
+                    <div>
+                        <label for="outputType" class="block text-sm font-medium text-gray-700 mb-1">Resource Type</label>
+                        <select id="outputType" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                            <option value="summary">Simple Lesson Summary (Comprehension)</option>
+                            <option value="quiz">Interactive Quiz (Questions & Answers)</option>
+                            <option value="game">Team Game / Challenge Idea</option>
+                        </select>
+                    </div>
+                    
+                    <!-- NEW: Output Language Select -->
+                    <div>
+                        <label for="outputLanguage" class="block text-sm font-medium text-gray-700 mb-1">Output Language</label>
+                        <select id="outputLanguage" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-morocco-blue focus:border-morocco-blue transition duration-150">
+                            <option value="Standard Arabic">Standard Arabic (الفصحى)</option>
+                            <option value="Moroccan Arabic (Darija)">Moroccan Arabic (الدارجة) - For games/simple summaries</option>
+                            <option value="French">French (Français)</option>
+                            <option value="English">English</option>
+                        </select>
+                    </div>
+
+                    <!-- Generate Button (onclick removed) -->
+                    <button id="generateBtn"
+                            class="w-full py-3 px-4 bg-morocco-green text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition duration-300 transform hover:scale-[1.01] flex items-center justify-center disabled:opacity-50">
+                        Generate Resource
+                    </button>
+                </div>
+            </section>
+
+            <!-- Output Display -->
+            <section class="lg:col-span-2 p-6 bg-white rounded-xl shadow-2xl">
+                <h2 id="outputTitle" class="text-2xl font-bold text-morocco-blue mb-5 border-b pb-3">Generated Content</h2>
+
+                <div id="loadingIndicator" class="hidden loading-dots my-10">
+                    <div class="h-4 w-4"></div>
+                    <div class="h-4 w-4"></div>
+                    <div class="h-4 w-4"></div>
+                </div>
+
+                <div id="outputContainer" class="text-gray-700 space-y-4">
+                    <p class="text-center text-gray-500 italic">Select your lesson details and click "Generate" to create a new resource.</p>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script type="module">
+        // Gemini API Configuration
+        const apiKey = "AIzaSyDr-16AZfW9ucQO2_UVltXQz65aDh1ppiw"; // Leave as-is, the environment provides the key
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+
+        // Utility Functions and DOM Elements
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const outputContainer = document.getElementById('outputContainer');
+        const generateBtn = document.getElementById('generateBtn');
+        const outputTitle = document.getElementById('outputTitle');
+
+        /**
+         * Exponential backoff for API retries.
+         * @param {number} attempt
+         * @returns {Promise<void>}
+         */
+        const wait = (attempt) => new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 500));
+
+        /**
+         * Retrieves the specific JSON schema for the chosen output type.
+         * @param {string} type - 'quiz', 'game', or 'summary'
+         * @returns {object|null} The responseSchema object for the Gemini API call.
+         */
+        function getStructuredSchema(type) {
+            if (type === 'quiz') {
+                return {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        description: "A list of quiz questions.",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                question: { type: "STRING", description: "The quiz question." },
+                                options: { type: "ARRAY", description: "An array of possible answer options.", items: { type: "STRING" } },
+                                correctAnswer: { type: "STRING", description: "The correct answer, must match one of the options." },
+                                explanation: { type: "STRING", description: "A brief, simple explanation for the answer." }
+                            },
+                            required: ["question", "options", "correctAnswer", "explanation"]
+                        }
+                    }
+                };
+            } else if (type === 'game') {
+                return {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        description: "A structured idea for a team-based educational game.",
+                        properties: {
+                            gameTitle: { type: "STRING", description: "A catchy, engaging title for the game." },
+                            objective: { type: "STRING", description: "The educational goal of the game." },
+                            teamSize: { type: "STRING", description: "Recommended number of students per team (e.g., 3-4)." },
+                            setup: { type: "STRING", description: "Materials needed and how to set up the game area." },
+                            steps: { type: "ARRAY", description: "Step-by-step instructions on how to play.", items: { type: "STRING" } },
+                            scoring: { type : "STRING", description: "How points are awarded and how the winner is determined." }
+                        },
+                        required: ["gameTitle", "objective", "teamSize", "setup", "steps", "scoring"]
+                    }
+                };
+            }
+            // Summary uses plain text (no structured schema)
+            return null;
+        }
+
+        /**
+         * Constructs the system prompt and user query based on user inputs.
+         * @param {string} grade
+         * @param {string} subject
+         * @param {string} lesson
+         * @param {string} type
+         * @param {string} outputLanguage // NEW parameter
+         * @returns {{systemInstruction: string, userQuery: string}}
+         */
+        function buildPrompts(grade, subject, lesson, type, outputLanguage) {
+            // Updated base instruction to enforce the chosen language
+            const baseInstruction = `You are an expert pedagogical assistant for Moroccan teachers, focused on making learning as engaging as possible. Your task is to generate educational resources for the Moroccan curriculum, ensuring the tone is encouraging, and the complexity is appropriate for a ${grade} level, focusing on the subject of ${subject}. The content must be easy for students to comprehend and directly related to the lesson topic: "${lesson}". **CRITICAL: The entire response MUST be generated in ${outputLanguage}.**`;
+
+            let userQuery = `Generate a resource of type: ${type} for a ${grade} lesson on "${lesson}" in the subject of ${subject}.`;
+
+            if (type === 'summary') {
+                return {
+                    systemInstruction: baseInstruction + "Your output must be a concise, easy-to-read summary suitable for comprehension check.",
+                    userQuery: "Generate the simple, easy-to-comprehend lesson summary."
+                };
+            } else if (type === 'quiz') {
+                return {
+                    systemInstruction: baseInstruction + "Your output must be a JSON array of 5 multiple-choice questions (4 options each) designed to test student comprehension. Ensure the language is simple and motivational. The response must be perfectly formatted JSON according to the provided schema.",
+                    userQuery: "Generate a 5-question multiple-choice quiz."
+                };
+            } else if (type === 'game') {
+                return {
+                    systemInstruction: baseInstruction + "Your output must be a perfectly formatted JSON object describing a fun, interactive, team-based challenge or game for the classroom. The game must be zero-to-low prep and designed to reinforce the lesson concept. The response must be perfectly formatted JSON according to the provided schema.",
+                    userQuery: "Generate a team-based game idea for this lesson."
+                };
+            }
+        }
+
+        /**
+         * Renders the generated content based on its structure.
+         * @param {object|string} content - The parsed JSON object or the raw text summary.
+         * @param {string} type - The resource type.
+         * @param {string} outputLanguage // NEW parameter
+         */
+        function renderContent(content, type, outputLanguage) {
+            outputContainer.innerHTML = '';
+            
+            // Determine text direction for Arabic/Darija
+            const isRTL = outputLanguage.includes('Arabic');
+            outputContainer.className = `text-gray-700 space-y-6 ${isRTL ? 'rtl' : ''}`;
+            
+            if (type === 'summary') {
+                outputTitle.textContent = "Lesson Summary";
+                const summaryHtml = `
+                    <div class="p-4 bg-gray-50 border-l-4 border-morocco-blue rounded-r-lg ${isRTL ? 'border-r-4 border-l-0 rounded-l-lg rounded-r-none' : ''}">
+                        <p class="text-lg whitespace-pre-wrap leading-relaxed">${content}</p>
+                    </div>
+                `;
+                outputContainer.innerHTML = summaryHtml;
+            } else if (type === 'quiz' && Array.isArray(content)) {
+                outputTitle.textContent = "Interactive Quiz";
+                content.forEach((q, index) => {
+                    const optionsHtml = q.options.map((option, optIndex) => `
+                        <li class="p-3 mb-2 bg-gray-100 rounded-lg border border-gray-200">${String.fromCharCode(65 + optIndex)}. ${option}</li>
+                    `).join('');
+
+                    const quizItemHtml = `
+                        <div class="bg-white p-5 rounded-xl shadow-md border-t-4 border-morocco-green">
+                            <p class="text-xl font-semibold text-morocco-blue mb-3">Question ${index + 1}: ${q.question}</p>
+                            <ul class="list-none space-y-2 text-base">
+                                ${optionsHtml}
+                            </ul>
+                            <div class="mt-3 pt-3 border-t border-gray-200">
+                                <p class="text-sm font-bold text-morocco-green">Answer: ${q.correctAnswer}</p>
+                                <p class="text-sm italic mt-1">Explanation: ${q.explanation}</p>
+                            </div>
+                        </div>
+                    `;
+                    outputContainer.innerHTML += quizItemHtml;
+                });
+            } else if (type === 'game' && typeof content === 'object') {
+                outputTitle.textContent = "Team Challenge Idea";
+                const stepsHtml = content.steps.map((step, index) => `
+                    <li class="text-gray-700"><span class="font-bold text-morocco-green">${index + 1}.</span> ${step}</li>
+                `).join('');
+
+                const gameHtml = `
+                    <div class="p-5 bg-yellow-50 border-t-4 border-morocco-gold rounded-xl shadow-md space-y-4">
+                        <h3 class="text-3xl font-extrabold text-morocco-gold">${content.gameTitle}</h3>
+                        <p class="text-lg font-medium">Objective: <span class="font-normal">${content.objective}</span></p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+                                <p class="font-semibold text-morocco-blue">Team Size:</p>
+                                <p>${content.teamSize}</p>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+                                <p class="font-semibold text-morocco-blue">Materials/Setup:</p>
+                                <p>${content.setup}</p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-xl font-bold text-morocco-blue mb-2">Instructions:</p>
+                            <ol class="list-decimal pl-5 space-y-2">${stepsHtml}</ol>
+                        </div>
+
+                        <div>
+                            <p class="text-xl font-bold text-morocco-blue mb-2">Scoring:</p>
+                            <p class="italic">${content.scoring}</p>
+                        </div>
+                    </div>
+                `;
+                outputContainer.innerHTML = gameHtml;
+            } else {
+                outputContainer.innerHTML = '<p class="text-red-500 text-center">Error: Could not parse content. Check console for details.</p>';
+            }
+        }
+
+        // Main Content Generation Function
+        async function generateContent() {
+            const grade = document.getElementById('grade').value;
+            const subject = document.getElementById('subject').value.trim();
+            const lesson = document.getElementById('lesson').value.trim();
+            const outputType = document.getElementById('outputType').value;
+            const outputLanguage = document.getElementById('outputLanguage').value; // Get the selected language
+
+            if (!subject || !lesson) {
+                outputContainer.innerHTML = '<p class="text-red-500 text-center">Please provide a Subject and a Lesson Topic.</p>';
+                return;
+            }
+
+            // UI State Change (Loading)
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            outputContainer.innerHTML = '';
+            loadingIndicator.classList.remove('hidden');
+
+            // Pass the selected language to the prompt builder
+            const { systemInstruction, userQuery } = buildPrompts(grade, subject, lesson, outputType, outputLanguage);
+            const generationConfig = getStructuredSchema(outputType);
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemInstruction }] },
+            };
+            
+            if (generationConfig) {
+                payload.generationConfig = generationConfig;
+            }
+
+            // Exponential backoff loop
+            let response, result;
+            const maxRetries = 3;
+            for (let attempt = 0; attempt < maxRetries; attempt++) {
+                try {
+                    await wait(attempt); // Wait before the next attempt
+                    
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        result = await response.json();
+                        break; // Success, exit loop
+                    } else if (response.status === 429 && attempt < maxRetries - 1) {
+                        console.warn(`Attempt ${attempt + 1} failed with 429 (Rate Limit). Retrying...`);
+                        continue; // Rate limit, retry
+                    } else {
+                        // Other error, throw to be caught
+                        throw new Error(`API returned status ${response.status}: ${response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error("Fetch error:", error);
+                    result = { error: error.message }; // Store error to break/handle
+                    break;
+                }
+            }
+
+
+            // UI State Change (Finished)
+            loadingIndicator.classList.add('hidden');
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate Resource';
+
+            if (result.error) {
+                outputContainer.innerHTML = `<p class="text-red-500 text-center">Generation Failed: ${result.error}</p>`;
+                return;
+            }
+
+            try {
+                const textPart = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                if (!textPart) {
+                    throw new Error("Received an empty response from the AI.");
+                }
+
+                if (outputType === 'summary') {
+                    // Summary is plain text
+                    renderContent(textPart, outputType, outputLanguage);
+                } else {
+                    // Quiz and Game are JSON
+                    const parsedContent = JSON.parse(textPart);
+                    renderContent(parsedContent, outputType, outputLanguage);
+                }
+
+            } catch (e) {
+                console.error("Error processing AI response:", e);
+                console.log("Raw Text Received:", result?.candidates?.[0]?.content?.parts?.[0]?.text);
+                outputContainer.innerHTML = `<p class="text-red-500 text-center">Error: The AI generated an unparseable response for ${outputType}. Please try again.</p>`;
+            }
+        }
+        
+        // FIX: Attach event listener directly using JavaScript from the module scope.
+        generateBtn.addEventListener('click', generateContent);
+    </script>
+</body>
+</html>
