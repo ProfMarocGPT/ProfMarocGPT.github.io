@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProfMarocGPT V1.9 + DALL·E</title>
+  <title>ProfMarocGPT V1.6 + DALL·E</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     window.MathJax = {
@@ -215,4 +215,17 @@ Return valid JSON ONLY:
         }
         renderSlides(slides, lang);
       } else {
-        outputContainer.innerHTML = `<p class="p-4 bg-gray-50 border
+        outputContainer.innerHTML = `<p class="p-4 bg-gray-50 border-l-4 border-blue-900 rounded-r-lg whitespace-pre-wrap">${text}</p>`;
+      }
+    } catch(err){
+      console.error(err);
+      outputContainer.innerHTML = `<p class="text-red-500 text-center">Error generating content: ${err}</p>`;
+      loadingIndicator.classList.add("hidden");
+      generateBtn.disabled = false;
+    }
+  }
+
+  generateBtn.addEventListener("click", generateContent);
+</script>
+</body>
+</html>
