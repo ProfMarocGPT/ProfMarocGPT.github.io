@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProfMarocGPT V1.7</title>
+  <title>ProfMarocGPT V1.8</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- ✅ MathJax for LaTeX -->
@@ -36,7 +36,7 @@
 
   <div class="max-w-4xl mx-auto">
     <header class="text-center mb-10 p-6 bg-[#1a2e4f] text-white rounded-xl shadow-lg">
-      <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.7</h1>
+      <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.8</h1>
       <p class="text-[#ffc107] text-lg">الذكاء الاصطناعي لتعلم متميز وهادف.</p>
     </header>
 
@@ -105,7 +105,6 @@
     const loadingIndicator = document.getElementById('loadingIndicator');
     const generateBtn = document.getElementById('generateBtn');
 
-    // Google Image Fetch
     async function fetchGoogleImage(query) {
       try {
         const res = await fetch(`https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&searchType=image&num=1&key=${GOOGLE_API_KEY}&cx=${SEARCH_ENGINE_ID}`);
@@ -116,7 +115,6 @@
       }
     }
 
-    // Build prompts
     function buildPrompts(grade, subject, lesson, type, outputLanguage) {
       const base = `You are an expert Moroccan teacher assistant. Generate ${type} content for ${subject} for ${grade}.`;
 
@@ -148,7 +146,6 @@ Ensure meaningful titles, key points, and visual ideas.
       }
     }
 
-    // Render slides with image placeholder fallback
     function renderSlides(slides, lang) {
       outputContainer.innerHTML = "";
       const isRTL = lang.includes("Arabic");
@@ -165,7 +162,6 @@ Ensure meaningful titles, key points, and visual ideas.
         `;
         outputContainer.appendChild(card);
 
-        // Fetch image in parallel
         const imageContainer = card.querySelector(".imageContainer");
         fetchGoogleImage(slide.visualIdea).then(imgUrl => {
           if (imgUrl) {
@@ -185,7 +181,6 @@ Ensure meaningful titles, key points, and visual ideas.
       MathJax.typesetPromise();
     }
 
-    // Generate content
     async function generateContent() {
       const grade = document.getElementById("grade").value;
       const subject = document.getElementById("subject").value.trim();
@@ -210,7 +205,7 @@ Ensure meaningful titles, key points, and visual ideas.
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
 
         loadingIndicator.classList.add("hidden");
         generateBtn.disabled = false;
@@ -218,7 +213,9 @@ Ensure meaningful titles, key points, and visual ideas.
         if (type === "presentation") {
           let slides;
           try {
-            slides = JSON.parse(text);
+            // Strip code fences if present
+            let cleanedText = text.trim().replace(/^```json\s*/, '').replace(/```$/, '');
+            slides = JSON.parse(cleanedText);
             if (!Array.isArray(slides)) throw new Error("Not an array");
           } catch (err) {
             console.error("Failed to parse JSON:", text);
