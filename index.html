@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OstadiGPT(BETA)</title>
+<title>OstadiGPT (BETA V1)</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 
+<!-- MathJax for formulas -->
 <script>
   window.MathJax = { tex:{inlineMath:[['$','$'],['\\(','\\)']]}, svg:{fontCache:'global'} };
 </script>
@@ -26,7 +27,7 @@ body { font-family:'Inter',sans-serif; }
 
 <div class="max-w-4xl mx-auto">
 <header class="text-center mb-10 p-6 bg-[#1a2e4f] text-white rounded-xl shadow-lg">
-<h1 class="text-3xl md:text-4xl font-extrabold mb-1">OstadiGPT(BETA)</h1>
+<h1 class="text-3xl md:text-4xl font-extrabold mb-1">OstadiGPT(BETAV1)</h1>
 <p class="text-[#ffc107] text-lg">الذكاء الاصطناعي لتعلم متميز وهادف.</p>
 </header>
 
@@ -88,20 +89,17 @@ const outputContainer = document.getElementById('outputContainer');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const generateBtn = document.getElementById('generateBtn');
 
-// 🔥 Gemini PRO API key here
-const GEMINI_KEY = "AIzaSyBhsY_WDmq3cRvSfzdv9SlPhwnhee_vrnU";
+// 🔥 Gemini PRO API key (replace with your key)
+const GEMINI_KEY = "YOUR_GEMINI_PRO_KEY_HERE";
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-2025-10-07:generateContent?key=${GEMINI_KEY}`;
 
 // Gemini PRO Image Generator
 async function generateGeminiImage(prompt){
   try{
-    const payload = {
-      contents: [{ parts:[{text:prompt}] }],
-      modality: "image"
-    };
+    const payload = { contents:[{parts:[{text:prompt}]}], modality:"image" };
     const res = await fetch(GEMINI_URL,{
       method:"POST",
-      headers: {"Content-Type":"application/json"},
+      headers:{"Content-Type":"application/json"},
       body: JSON.stringify(payload)
     });
     const data = await res.json();
@@ -145,7 +143,69 @@ async function renderSlides(slides, lang){
   MathJax.typesetPromise();
 }
 
-// 🔥 Keep buildPrompts & generateContent logic same as your first code
+// Generate Content Function
+async function generateContent(){
+  const grade = document.getElementById("grade").value;
+  const subject = document.getElementById("subject").value.trim();
+  const lesson = document.getElementById("lesson").value.trim();
+  const type = document.getElementById("outputType").value;
+  const lang = document.getElementById("outputLanguage").value;
+
+  outputContainer.innerHTML = "";
+  loadingIndicator.classList.remove("hidden");
+  generateBtn.disabled = true;
+
+  let userPrompt = "";
+  if(type === "presentation"){
+    userPrompt = `
+You are an expert Moroccan teacher assistant.
+Generate a 7-slide presentation for "${lesson}" in ${lang}.
+Return valid JSON ONLY:
+[
+  { "slideTitle":"Title","keyPoints":["Point 1"],"visualIdea":"Image description" },
+  ...
+]
+`;
+  } else {
+    userPrompt = `You are an expert Moroccan teacher assistant. Generate a simple text summary for "${lesson}" in ${lang}.`;
+  }
+
+  try{
+    const payload = { contents:[{parts:[{text:userPrompt}]}] };
+    const res = await fetch(GEMINI_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+    let text = data?.candidates?.[0]?.content?.[0]?.text || "";
+
+    loadingIndicator.classList.add("hidden");
+    generateBtn.disabled = false;
+
+    if(type==="presentation"){
+      let cleanedText = text.trim().replace(/^```json\s*/, '').replace(/```$/,'');
+      let slides;
+      try{
+        slides = JSON.parse(cleanedText);
+        if(!Array.isArray(slides)) throw new Error("Not an array");
+      } catch(err){
+        outputContainer.innerHTML = `<p class="text-red-500">Failed to parse presentation JSON.<br>Raw content:<br>${text}</p>`;
+        return;
+      }
+      renderSlides(slides, lang);
+    } else {
+      outputContainer.innerHTML = `<p class="p-4 bg-gray-50 border-l-4 border-blue-900 rounded-r-lg whitespace-pre-wrap">${text}</p>`;
+    }
+
+  } catch(err){
+    console.error(err);
+    outputContainer.innerHTML = `<p class="text-red-500 text-center">Error generating content: ${err}</p>`;
+    loadingIndicator.classList.add("hidden");
+    generateBtn.disabled = false;
+  }
+}
+
 generateBtn.addEventListener("click", generateContent);
 </script>
 </body>
