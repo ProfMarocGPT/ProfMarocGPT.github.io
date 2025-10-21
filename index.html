@@ -3,231 +3,150 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ProfMarocGPT V1.9 + DALL·E</title>
+<title>OstadiGPT (BETA)</title>
 <script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Inter font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
 
-<!-- MathJax for LaTeX -->
 <script>
-  window.MathJax = {
-    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-    svg: { fontCache: 'global' }
-  };
+  window.MathJax = { tex:{inlineMath:[['$','$'],['\\(','\\)']]}, svg:{fontCache:'global'} };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
 
 <style>
-  body { font-family: 'Inter', sans-serif; }
-  .rtl { direction: rtl; text-align: right; }
-  .loading-dots { display: flex; justify-content: center; align-items: center; }
-  .loading-dots div {
-    width: 10px; height: 10px; margin: 0 5px; background-color: #ffc107;
-    border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;
-  }
-  .loading-dots div:nth-child(1) { animation-delay: -0.32s; }
-  .loading-dots div:nth-child(2) { animation-delay: -0.16s; }
-  @keyframes bounce {
-    0%, 80%, 100% { transform: scale(0); }
-    40% { transform: scale(1.0); }
-  }
+body { font-family:'Inter',sans-serif; }
+.rtl { direction: rtl; text-align: right; }
+.loading-dots { display: flex; justify-content: center; align-items: center; }
+.loading-dots div { width: 10px; height: 10px; margin: 0 5px; background-color: #ffc107; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+.loading-dots div:nth-child(1){animation-delay:-0.32s;}
+.loading-dots div:nth-child(2){animation-delay:-0.16s;}
+@keyframes bounce { 0%,80%,100%{transform:scale(0);}40%{transform:scale(1);} }
 </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 md:p-8">
 
 <div class="max-w-4xl mx-auto">
 <header class="text-center mb-10 p-6 bg-[#1a2e4f] text-white rounded-xl shadow-lg">
-  <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.9 + DALL·E 🇲🇦</h1>
-  <p class="text-[#ffc107] text-lg">الذكاء الاصطناعي لتعلم متميز وهادف.</p>
+<h1 class="text-3xl md:text-4xl font-extrabold mb-1">OstadiGPT(BETA)</h1>
+<p class="text-[#ffc107] text-lg">الذكاء الاصطناعي لتعلم متميز وهادف.</p>
 </header>
 
 <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-  <section class="lg:col-span-1 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-8">
-    <h2 class="text-2xl font-bold text-[#1a2e4f] mb-5 border-b pb-3">Lesson Details</h2>
-    <div class="space-y-4">
-      <div>
-        <label for="grade" class="block text-sm font-medium mb-1">Grade Level</label>
-        <select id="grade" class="w-full p-3 border rounded-lg">
-          <option>Primary School</option>
-          <option>Middle School</option>
-          <option>High School</option>
-          <option>University</option>
-        </select>
-      </div>
-      <div>
-        <label for="subject" class="block text-sm font-medium mb-1">Subject</label>
-        <input id="subject" type="text" value="Physics" class="w-full p-3 border rounded-lg">
-      </div>
-      <div>
-        <label for="lesson" class="block text-sm font-medium mb-1">Lesson Topic</label>
-        <input id="lesson" type="text" value="Les Atomes et Les Ions" class="w-full p-3 border rounded-lg">
-      </div>
-      <div>
-        <label for="outputType" class="block text-sm font-medium mb-1">Resource Type</label>
-        <select id="outputType" class="w-full p-3 border rounded-lg">
-          <option value="summary">Simple Lesson Summary</option>
-          <option value="presentation">Presentation Outline</option>
-        </select>
-      </div>
-      <div>
-        <label for="outputLanguage" class="block text-sm font-medium mb-1">Output Language</label>
-        <select id="outputLanguage" class="w-full p-3 border rounded-lg">
-          <option>Standard Arabic</option>
-          <option>Moroccan Arabic (Darija)</option>
-          <option>French</option>
-          <option>English</option>
-        </select>
-      </div>
-      <button id="generateBtn" class="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">Generate Resource</button>
-    </div>
-  </section>
+<section class="lg:col-span-1 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-8">
+<h2 class="text-2xl font-bold text-[#1a2e4f] mb-5 border-b pb-3">Lesson Details</h2>
+<div class="space-y-4">
+<div>
+<label for="grade" class="block text-sm font-medium mb-1">Grade Level</label>
+<select id="grade" class="w-full p-3 border rounded-lg">
+<option>Primary School</option>
+<option>Middle School</option>
+<option>High School</option>
+<option>University</option>
+</select>
+</div>
+<div>
+<label for="subject" class="block text-sm font-medium mb-1">Subject</label>
+<input id="subject" type="text" value="Physics" class="w-full p-3 border rounded-lg">
+</div>
+<div>
+<label for="lesson" class="block text-sm font-medium mb-1">Lesson Topic</label>
+<input id="lesson" type="text" value="Les Atomes et Les Ions" class="w-full p-3 border rounded-lg">
+</div>
+<div>
+<label for="outputType" class="block text-sm font-medium mb-1">Resource Type</label>
+<select id="outputType" class="w-full p-3 border rounded-lg">
+<option value="summary">Simple Lesson Summary</option>
+<option value="presentation">Presentation Outline</option>
+</select>
+</div>
+<div>
+<label for="outputLanguage" class="block text-sm font-medium mb-1">Output Language</label>
+<select id="outputLanguage" class="w-full p-3 border rounded-lg">
+<option>Standard Arabic</option>
+<option>Moroccan Arabic (Darija)</option>
+<option>French</option>
+<option>English</option>
+</select>
+</div>
+<button id="generateBtn" class="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">Generate Resource</button>
+</div>
+</section>
 
-  <section class="lg:col-span-2 p-6 bg-white rounded-xl shadow-2xl">
-    <h2 id="outputTitle" class="text-2xl font-bold text-[#1a2e4f] mb-5 border-b pb-3">Generated Content</h2>
-
-    <div id="loadingIndicator" class="hidden loading-dots my-10">
-      <div></div><div></div><div></div>
-    </div>
-
-    <div id="outputContainer" class="text-gray-700 space-y-4">
-      <p class="text-center text-gray-500 italic">Select lesson details and click "Generate".</p>
-    </div>
-  </section>
+<section class="lg:col-span-2 p-6 bg-white rounded-xl shadow-2xl">
+<h2 id="outputTitle" class="text-2xl font-bold text-[#1a2e4f] mb-5 border-b pb-3">Generated Content</h2>
+<div id="loadingIndicator" class="hidden loading-dots my-10">
+<div></div><div></div><div></div>
+</div>
+<div id="outputContainer" class="text-gray-700 space-y-4">
+<p class="text-center text-gray-500 italic">Select lesson details and click "Generate".</p>
+</div>
+</section>
 </main>
 </div>
 
 <script type="module">
-  const GEMINI_KEY = "AIzaSyBhsY_WDmq3cRvSfzdv9SlPhwnhee_vrnU";
-  const OPENAI_KEY = "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";
-  const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_KEY}`;
+const outputContainer = document.getElementById('outputContainer');
+const loadingIndicator = document.getElementById('loadingIndicator');
+const generateBtn = document.getElementById('generateBtn');
 
-  const outputContainer = document.getElementById('outputContainer');
-  const loadingIndicator = document.getElementById('loadingIndicator');
-  const generateBtn = document.getElementById('generateBtn');
+// 🔥 Gemini PRO API key here
+const GEMINI_KEY = "YOUR_GEMINI_PRO_KEY_HERE";
+const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-2025-10-07:generateContent?key=${GEMINI_KEY}`;
 
-  function buildPrompts(grade, subject, lesson, type, lang){
-    const base = `You are an expert Moroccan teacher assistant. Generate ${type} content for ${subject} for ${grade}.`;
-    if(type==='presentation'){
-      return {
-        systemInstruction: base,
-        userQuery: `
-Generate a 7-slide presentation for "${lesson}" in ${lang}.
-Return valid JSON ONLY:
-[
-  { "slideTitle":"Title","keyPoints":["Point 1"],"visualIdea":"Image description" },
-  ...
-]
-`
-      };
-    } else {
-      return { systemInstruction: base, userQuery: `Generate a text summary for "${lesson}" in ${lang}.` };
-    }
-  }
-
-  async function generateDalleImage(prompt){
-    try{
-      const res = await fetch('https://api.openai.com/v1/images/generations',{
-        method:'POST',
-        headers:{ 
-          'Content-Type':'application/json',
-          'Authorization': `Bearer ${OPENAI_KEY}`
-        },
-        body: JSON.stringify({ prompt, n:1, size:"1024x1024" })
-      });
-      const data = await res.json();
-      return data.data?.[0]?.url || null;
-    } catch(e){
-      console.error("DALL·E error:", e);
-      return null;
-    }
-  }
-
-  function renderSlides(slides, lang){
-    outputContainer.innerHTML = "";
-    const isRTL = lang.includes("Arabic");
-
-    slides.forEach(async (slide, i)=>{
-      const card = document.createElement("div");
-      card.className = `p-6 bg-white rounded-xl shadow-md border-t-4 border-yellow-400 ${isRTL?'rtl':''}`;
-      card.innerHTML = `
-        <p class="text-sm font-bold text-yellow-500 mb-1">SLIDE ${i+1}/7</p>
-        <h3 class="text-xl font-bold text-[#1a2e4f] mb-3">${slide.slideTitle}</h3>
-        <ul class="list-disc pl-5 text-sm space-y-1">${slide.keyPoints.map(pt=>`<li>${pt}</li>`).join('')}</ul>
-        <div class="p-3 bg-gray-100 rounded-lg text-xs italic mt-3">💡 Visual Suggestion: ${slide.visualIdea}</div>
-        <div class="imageContainer mt-4 flex justify-center"></div>
-      `;
-      outputContainer.appendChild(card);
-
-      const imgContainer = card.querySelector(".imageContainer");
-      const imgUrl = await generateDalleImage(slide.visualIdea);
-      if(imgUrl){
-        const img = document.createElement("img");
-        img.src = imgUrl;
-        img.className = "rounded-lg shadow-md w-full max-w-md mx-auto mt-3";
-        imgContainer.appendChild(img);
-      } else {
-        const placeholder = document.createElement("div");
-        placeholder.className = "w-full max-w-md h-40 flex items-center justify-center bg-gray-200 text-gray-500 rounded-lg mx-auto mt-3 italic text-sm";
-        placeholder.textContent = "No image available";
-        imgContainer.appendChild(placeholder);
-      }
+// Gemini PRO Image Generator
+async function generateGeminiImage(prompt){
+  try{
+    const payload = {
+      contents: [{ parts:[{text:prompt}] }],
+      modality: "image"
+    };
+    const res = await fetch(GEMINI_URL,{
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
     });
-
-    MathJax.typesetPromise();
+    const data = await res.json();
+    return data?.candidates?.[0]?.content?.[0]?.imageUri || null;
+  }catch(err){
+    console.error("Gemini PRO image error:", err);
+    return null;
   }
+}
 
-  async function generateContent(){
-    const grade = document.getElementById("grade").value;
-    const subject = document.getElementById("subject").value.trim();
-    const lesson = document.getElementById("lesson").value.trim();
-    const type = document.getElementById("outputType").value;
-    const lang = document.getElementById("outputLanguage").value;
+// Slide Rendering
+async function renderSlides(slides, lang){
+  outputContainer.innerHTML="";
+  const isRTL = lang.includes("Arabic");
+  for(const [i, slide] of slides.entries()){
+    const card=document.createElement("div");
+    card.className=`p-6 bg-white rounded-xl shadow-md border-t-4 border-yellow-400 ${isRTL?'rtl':''}`;
+    card.innerHTML=`
+      <p class="text-sm font-bold text-yellow-500 mb-1">SLIDE ${i+1}/7</p>
+      <h3 class="text-xl font-bold text-[#1a2e4f] mb-3">${slide.slideTitle}</h3>
+      <ul class="list-disc pl-5 text-sm space-y-1">${slide.keyPoints.map(pt=>`<li>${pt}</li>`).join('')}</ul>
+      <div class="p-3 bg-gray-100 rounded-lg text-xs italic mt-3">💡 Visual Suggestion: ${slide.visualIdea}</div>
+      <div class="imageContainer mt-4 flex justify-center"></div>
+    `;
+    outputContainer.appendChild(card);
 
-    outputContainer.innerHTML = "";
-    loadingIndicator.classList.remove("hidden");
-    generateBtn.disabled = true;
-
-    const { systemInstruction, userQuery } = buildPrompts(grade, subject, lesson, type, lang);
-    const payload = { contents:[{parts:[{text:userQuery}]}], systemInstruction:{parts:[{text:systemInstruction}]} };
-
-    try{
-      const res = await fetch(GEMINI_URL,{
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-      loadingIndicator.classList.add("hidden");
-      generateBtn.disabled = false;
-
-      if(type==="presentation"){
-        let slides;
-        try{
-          // Remove Markdown fences
-          let cleanedText = text.trim().replace(/^```json\s*/, '').replace(/```$/,'');
-          slides = JSON.parse(cleanedText);
-          if(!Array.isArray(slides)) throw new Error("Not an array");
-        } catch(err){
-          outputContainer.innerHTML = `<p class="text-red-500">Failed to parse presentation JSON. Raw content:<br>${text}</p>`;
-          return;
-        }
-        renderSlides(slides, lang);
-      } else {
-        outputContainer.innerHTML = `<p class="p-4 bg-gray-50 border-l-4 border-blue-900 rounded-r-lg whitespace-pre-wrap">${text}</p>`;
-      }
-
-    } catch(err){
-      console.error(err);
-      outputContainer.innerHTML = `<p class="text-red-500 text-center">Error generating content: ${err}</p>`;
-      loadingIndicator.classList.add("hidden");
-      generateBtn.disabled = false;
+    const imgContainer = card.querySelector(".imageContainer");
+    const imgUrl = await generateGeminiImage(slide.visualIdea);
+    if(imgUrl){
+      const img=document.createElement("img");
+      img.src=imgUrl;
+      img.className="rounded-lg shadow-md w-full max-w-md mx-auto mt-3";
+      imgContainer.appendChild(img);
+    }else{
+      const placeholder=document.createElement("div");
+      placeholder.className="w-full max-w-md h-40 flex items-center justify-center bg-gray-200 text-gray-500 rounded-lg mx-auto mt-3 italic text-sm";
+      placeholder.textContent="No image available";
+      imgContainer.appendChild(placeholder);
     }
   }
+  MathJax.typesetPromise();
+}
 
-  generateBtn.addEventListener("click", generateContent);
+// 🔥 Keep buildPrompts & generateContent logic same as your first code
+generateBtn.addEventListener("click", generateContent);
 </script>
 </body>
 </html>
