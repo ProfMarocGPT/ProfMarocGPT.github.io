@@ -1,110 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProfMarocGPT V1.6 + DALL·E</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    window.MathJax = {
-      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-      svg: { fontCache: 'global' }
-    };
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProfMarocGPT V1.9 + DALL·E</title>
+<script src="https://cdn.tailwindcss.com"></script>
 
-  <style>
-    body { font-family: 'Inter', sans-serif; }
-    .rtl { direction: rtl; text-align: right; }
-    .loading-dots { display: flex; justify-content: center; align-items: center; }
-    .loading-dots div {
-      width: 10px; height: 10px; margin: 0 5px; background-color: #ffc107;
-      border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;
-    }
-    .loading-dots div:nth-child(1) { animation-delay: -0.32s; }
-    .loading-dots div:nth-child(2) { animation-delay: -0.16s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1.0); }
-    }
-  </style>
+<!-- Inter font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+<!-- MathJax for LaTeX -->
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+    svg: { fontCache: 'global' }
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
+
+<style>
+  body { font-family: 'Inter', sans-serif; }
+  .rtl { direction: rtl; text-align: right; }
+  .loading-dots { display: flex; justify-content: center; align-items: center; }
+  .loading-dots div {
+    width: 10px; height: 10px; margin: 0 5px; background-color: #ffc107;
+    border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both;
+  }
+  .loading-dots div:nth-child(1) { animation-delay: -0.32s; }
+  .loading-dots div:nth-child(2) { animation-delay: -0.16s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1.0); }
+  }
+</style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4 md:p-8">
 
 <div class="max-w-4xl mx-auto">
-  <header class="text-center mb-10 p-6 bg-[#1a2e4f] text-white rounded-xl shadow-lg">
-    <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.6 + DALL·E 🇲🇦</h1>
-    <p class="text-[#ffc107] text-lg">الذكاء الاصطناعي لتعلم متميز وهادف.</p>
-  </header>
+<header class="text-center mb-10 p-6 bg-[#1a2e4f] text-white rounded-xl shadow-lg">
+  <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.9 + DALL·E 🇲🇦</h1>
+  <p class="text-[#ffc107] text-lg">الذكاء الاصطناعي لتعلم متميز وهادف.</p>
+</header>
 
-  <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <section class="lg:col-span-1 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-8">
-      <h2 class="text-2xl font-bold text-[#1a2e4f] mb-5 border-b pb-3">Lesson Details</h2>
-      <div class="space-y-4">
-        <div>
-          <label for="grade" class="block text-sm font-medium mb-1">Grade Level</label>
-          <select id="grade" class="w-full p-3 border rounded-lg">
-            <option>Primary School</option>
-            <option>Middle School</option>
-            <option>High School</option>
-            <option>University</option>
-          </select>
-        </div>
-        <div>
-          <label for="subject" class="block text-sm font-medium mb-1">Subject</label>
-          <input id="subject" type="text" value="Physics" class="w-full p-3 border rounded-lg">
-        </div>
-        <div>
-          <label for="lesson" class="block text-sm font-medium mb-1">Lesson Topic</label>
-          <input id="lesson" type="text" value="Les Atomes et Les Ions" class="w-full p-3 border rounded-lg">
-        </div>
-        <div>
-          <label for="outputType" class="block text-sm font-medium mb-1">Resource Type</label>
-          <select id="outputType" class="w-full p-3 border rounded-lg">
-            <option value="summary">Simple Lesson Summary</option>
-            <option value="presentation">Presentation Outline</option>
-          </select>
-        </div>
-        <div>
-          <label for="outputLanguage" class="block text-sm font-medium mb-1">Output Language</label>
-          <select id="outputLanguage" class="w-full p-3 border rounded-lg">
-            <option>Standard Arabic</option>
-            <option>Moroccan Arabic (Darija)</option>
-            <option>French</option>
-            <option>English</option>
-          </select>
-        </div>
-        <button id="generateBtn" class="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">Generate Resource</button>
+<main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+  <section class="lg:col-span-1 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-8">
+    <h2 class="text-2xl font-bold text-[#1a2e4f] mb-5 border-b pb-3">Lesson Details</h2>
+    <div class="space-y-4">
+      <div>
+        <label for="grade" class="block text-sm font-medium mb-1">Grade Level</label>
+        <select id="grade" class="w-full p-3 border rounded-lg">
+          <option>Primary School</option>
+          <option>Middle School</option>
+          <option>High School</option>
+          <option>University</option>
+        </select>
       </div>
-    </section>
-
-    <section class="lg:col-span-2 p-6 bg-white rounded-xl shadow-2xl">
-      <h2 id="outputTitle" class="text-2xl font-bold text-[#1a2e4f] mb-5 border-b pb-3">Generated Content</h2>
-
-      <div id="loadingIndicator" class="hidden loading-dots my-10">
-        <div></div><div></div><div></div>
+      <div>
+        <label for="subject" class="block text-sm font-medium mb-1">Subject</label>
+        <input id="subject" type="text" value="Physics" class="w-full p-3 border rounded-lg">
       </div>
-
-      <div id="outputContainer" class="text-gray-700 space-y-4">
-        <p class="text-center text-gray-500 italic">Select lesson details and click "Generate".</p>
+      <div>
+        <label for="lesson" class="block text-sm font-medium mb-1">Lesson Topic</label>
+        <input id="lesson" type="text" value="Les Atomes et Les Ions" class="w-full p-3 border rounded-lg">
       </div>
-    </section>
-  </main>
+      <div>
+        <label for="outputType" class="block text-sm font-medium mb-1">Resource Type</label>
+        <select id="outputType" class="w-full p-3 border rounded-lg">
+          <option value="summary">Simple Lesson Summary</option>
+          <option value="presentation">Presentation Outline</option>
+        </select>
+      </div>
+      <div>
+        <label for="outputLanguage" class="block text-sm font-medium mb-1">Output Language</label>
+        <select id="outputLanguage" class="w-full p-3 border rounded-lg">
+          <option>Standard Arabic</option>
+          <option>Moroccan Arabic (Darija)</option>
+          <option>French</option>
+          <option>English</option>
+        </select>
+      </div>
+      <button id="generateBtn" class="w-full py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition">Generate Resource</button>
+    </div>
+  </section>
+
+  <section class="lg:col-span-2 p-6 bg-white rounded-xl shadow-2xl">
+    <h2 id="outputTitle" class="text-2xl font-bold text-[#1a2e4f] mb-5 border-b pb-3">Generated Content</h2>
+
+    <div id="loadingIndicator" class="hidden loading-dots my-10">
+      <div></div><div></div><div></div>
+    </div>
+
+    <div id="outputContainer" class="text-gray-700 space-y-4">
+      <p class="text-center text-gray-500 italic">Select lesson details and click "Generate".</p>
+    </div>
+  </section>
+</main>
 </div>
 
 <script type="module">
   const GEMINI_KEY = "AIzaSyBhsY_WDmq3cRvSfzdv9SlPhwnhee_vrnU";
-  const OPENAI_KEY = "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"; // DALL·E API Key
+  const OPENAI_KEY = "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";
   const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_KEY}`;
 
   const outputContainer = document.getElementById('outputContainer');
   const loadingIndicator = document.getElementById('loadingIndicator');
   const generateBtn = document.getElementById('generateBtn');
 
-  function buildPrompts(grade, subject, lesson, type, lang) {
+  function buildPrompts(grade, subject, lesson, type, lang){
     const base = `You are an expert Moroccan teacher assistant. Generate ${type} content for ${subject} for ${grade}.`;
-
-    if (type === 'presentation') {
+    if(type==='presentation'){
       return {
         systemInstruction: base,
         userQuery: `
@@ -121,35 +125,31 @@ Return valid JSON ONLY:
     }
   }
 
-  async function generateDalleImage(prompt) {
-    try {
-      const res = await fetch('https://api.openai.com/v1/images/generations', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+  async function generateDalleImage(prompt){
+    try{
+      const res = await fetch('https://api.openai.com/v1/images/generations',{
+        method:'POST',
+        headers:{ 
+          'Content-Type':'application/json',
           'Authorization': `Bearer ${OPENAI_KEY}`
         },
-        body: JSON.stringify({
-          prompt: prompt,
-          n: 1,
-          size: "1024x1024"
-        })
+        body: JSON.stringify({ prompt, n:1, size:"1024x1024" })
       });
       const data = await res.json();
       return data.data?.[0]?.url || null;
-    } catch(e) {
+    } catch(e){
       console.error("DALL·E error:", e);
       return null;
     }
   }
 
-  function renderSlides(slides, lang) {
+  function renderSlides(slides, lang){
     outputContainer.innerHTML = "";
     const isRTL = lang.includes("Arabic");
 
-    slides.forEach(async (slide, i) => {
+    slides.forEach(async (slide, i)=>{
       const card = document.createElement("div");
-      card.className = `p-6 bg-white rounded-xl shadow-md border-t-4 border-yellow-400 ${isRTL ? 'rtl' : ''}`;
+      card.className = `p-6 bg-white rounded-xl shadow-md border-t-4 border-yellow-400 ${isRTL?'rtl':''}`;
       card.innerHTML = `
         <p class="text-sm font-bold text-yellow-500 mb-1">SLIDE ${i+1}/7</p>
         <h3 class="text-xl font-bold text-[#1a2e4f] mb-3">${slide.slideTitle}</h3>
@@ -159,25 +159,25 @@ Return valid JSON ONLY:
       `;
       outputContainer.appendChild(card);
 
-      const imageContainer = card.querySelector(".imageContainer");
+      const imgContainer = card.querySelector(".imageContainer");
       const imgUrl = await generateDalleImage(slide.visualIdea);
       if(imgUrl){
         const img = document.createElement("img");
         img.src = imgUrl;
         img.className = "rounded-lg shadow-md w-full max-w-md mx-auto mt-3";
-        imageContainer.appendChild(img);
+        imgContainer.appendChild(img);
       } else {
         const placeholder = document.createElement("div");
         placeholder.className = "w-full max-w-md h-40 flex items-center justify-center bg-gray-200 text-gray-500 rounded-lg mx-auto mt-3 italic text-sm";
         placeholder.textContent = "No image available";
-        imageContainer.appendChild(placeholder);
+        imgContainer.appendChild(placeholder);
       }
     });
 
     MathJax.typesetPromise();
   }
 
-  async function generateContent() {
+  async function generateContent(){
     const grade = document.getElementById("grade").value;
     const subject = document.getElementById("subject").value.trim();
     const lesson = document.getElementById("lesson").value.trim();
@@ -191,7 +191,7 @@ Return valid JSON ONLY:
     const { systemInstruction, userQuery } = buildPrompts(grade, subject, lesson, type, lang);
     const payload = { contents:[{parts:[{text:userQuery}]}], systemInstruction:{parts:[{text:systemInstruction}]} };
 
-    try {
+    try{
       const res = await fetch(GEMINI_URL,{
         method:"POST",
         headers:{ "Content-Type":"application/json" },
@@ -206,7 +206,8 @@ Return valid JSON ONLY:
       if(type==="presentation"){
         let slides;
         try{
-          let cleanedText = text.trim().replace(/^```json\s*/,'').replace(/```$/,'');
+          // Remove Markdown fences
+          let cleanedText = text.trim().replace(/^```json\s*/, '').replace(/```$/,'');
           slides = JSON.parse(cleanedText);
           if(!Array.isArray(slides)) throw new Error("Not an array");
         } catch(err){
@@ -217,6 +218,7 @@ Return valid JSON ONLY:
       } else {
         outputContainer.innerHTML = `<p class="p-4 bg-gray-50 border-l-4 border-blue-900 rounded-r-lg whitespace-pre-wrap">${text}</p>`;
       }
+
     } catch(err){
       console.error(err);
       outputContainer.innerHTML = `<p class="text-red-500 text-center">Error generating content: ${err}</p>`;
