@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ProfMarocGPT V1.5</title>
+    <title>Ostadi (BETA)</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- ✅ MathJax for LaTeX rendering -->
     <script>
         window.MathJax = {
             tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
-            svg: { fontCache: 'global' }
+            svg: { fontCache: 'global' },
+            startup: { typeset: false }
         };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" async></script>
@@ -24,9 +25,7 @@
                         'morocco-gold': '#ffc107',
                         'morocco-green': '#008000',
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
                 }
             }
         }
@@ -35,27 +34,12 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
-        .loading-dots {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .loading-dots div {
-            width: 10px;
-            height: 10px;
-            margin: 0 5px;
-            background-color: #ffc107;
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out both;
-        }
+        .loading-dots { display: flex; justify-content: center; align-items: center; }
+        .loading-dots div { width: 10px; height: 10px; margin: 0 5px; background-color: #ffc107; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
         .loading-dots div:nth-child(1) { animation-delay: -0.32s; }
         .loading-dots div:nth-child(2) { animation-delay: -0.16s; }
 
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1.0); }
-        }
-
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
         .rtl { direction: rtl; text-align: right; }
 
         @media print {
@@ -66,7 +50,6 @@
     </style>
 </head>
 <body class="bg-gray-50 font-sans min-h-screen p-4 md:p-8">
-
     <div class="max-w-4xl mx-auto">
         <header class="text-center mb-10 p-6 bg-morocco-blue text-white rounded-xl shadow-lg no-print">
             <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.5 🇲🇦</h1>
@@ -76,7 +59,6 @@
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <section class="lg:col-span-1 p-6 bg-white rounded-xl shadow-2xl h-fit sticky top-8 no-print">
                 <h2 class="text-2xl font-bold text-morocco-blue mb-5 border-b pb-3">Lesson Details</h2>
-
                 <div class="space-y-4">
                     <div>
                         <label for="grade" class="block text-sm font-medium text-gray-700 mb-1">Grade Level</label>
@@ -124,17 +106,12 @@
 
             <section class="lg:col-span-2 p-6 bg-white rounded-xl shadow-2xl">
                 <h2 id="outputTitle" class="text-2xl font-bold text-morocco-blue mb-5 border-b pb-3">Generated Content</h2>
-
                 <div class="text-right mb-4">
                     <button id="printBtn" class="hidden py-2 px-4 bg-morocco-blue text-white text-sm font-semibold rounded-lg shadow-md hover:bg-blue-700 no-print">
                         🖨️ Print Resource
                     </button>
                 </div>
-
-                <div id="loadingIndicator" class="hidden loading-dots my-10">
-                    <div class="h-4 w-4"></div><div class="h-4 w-4"></div><div class="h-4 w-4"></div>
-                </div>
-
+                <div id="loadingIndicator" class="hidden loading-dots my-10"><div class="h-4 w-4"></div><div class="h-4 w-4"></div><div class="h-4 w-4"></div></div>
                 <div id="outputContainer" class="text-gray-700 space-y-4">
                     <p class="text-center text-gray-500 italic">Select your lesson details and click "Generate" to create a new resource.</p>
                 </div>
@@ -149,7 +126,6 @@
         const loadingIndicator = document.getElementById('loadingIndicator');
         const outputContainer = document.getElementById('outputContainer');
         const generateBtn = document.getElementById('generateBtn');
-        const outputTitle = document.getElementById('outputTitle');
         const printBtn = document.getElementById('printBtn');
 
         const wait = (attempt) => new Promise(r => setTimeout(r, Math.pow(2, attempt) * 500));
@@ -217,7 +193,11 @@
 
             outputContainer.innerHTML = html;
             printBtn.classList.remove('hidden');
-            MathJax.typesetPromise(); // ✅ re-render LaTeX dynamically
+
+            if (window.MathJax && window.MathJax.typesetPromise) {
+                MathJax.typesetClear();
+                MathJax.typesetPromise([outputContainer]).catch(err => console.error('MathJax render error:', err));
+            }
         }
 
         async function generateContent() {
