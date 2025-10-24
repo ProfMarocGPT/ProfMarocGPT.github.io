@@ -116,7 +116,7 @@
     }
 
     function buildPrompts(grade, subject, lesson, type, outputLanguage) {
-      const base = `You are an expert Moroccan teacher assistant. Generate ${type} content for ${subject} for ${grade}.`;
+      const base = `You are an expert Moroccan teacher assistant. Generate ${type} content for ${subject} for ${grade},Using Moroccan Book Ressources If Found And Moutamadris Ressources If Found`;
 
       if (type === 'presentation') {
         return {
