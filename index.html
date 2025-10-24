@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ProfMarocGPT V1.6</title>
+  <title>ProfMarocGPT V1.7</title>
   <script src="https://cdn.tailwindcss.com"></script>
 
   <!-- ✅ MathJax for LaTeX -->
@@ -36,7 +36,7 @@
 
   <div class="max-w-4xl mx-auto">
     <header class="text-center mb-10 p-6 bg-[#1a2e4f] text-white rounded-xl shadow-lg">
-      <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.6 🇲🇦</h1>
+      <h1 class="text-3xl md:text-4xl font-extrabold mb-1">ProfMarocGPT V1.7</h1>
       <p class="text-[#ffc107] text-lg">الذكاء الاصطناعي لتعلم متميز وهادف.</p>
     </header>
 
@@ -97,10 +97,10 @@
 
   <script type="module">
     const GEMINI_KEY = "AIzaSyDr-16AZfW9ucQO2_UVltXQz65aDh1ppiw";
-    const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY";
-    const SEARCH_ENGINE_ID = "YOUR_SEARCH_ENGINE_ID";
-
+    const GOOGLE_API_KEY = "AIzaSyBhsY_WDmq3cRvSfzdv9SlPhwnhee_vrnU";
+    const SEARCH_ENGINE_ID = "24fa4ab325f7f4dd8";
     const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${GEMINI_KEY}`;
+
     const outputContainer = document.getElementById('outputContainer');
     const loadingIndicator = document.getElementById('loadingIndicator');
     const generateBtn = document.getElementById('generateBtn');
@@ -117,15 +117,39 @@
 
     function buildPrompts(grade, subject, lesson, type, outputLanguage) {
       const base = `You are an expert Moroccan teacher assistant. Generate ${type} content for ${subject} for ${grade}.`;
-      if (type === 'presentation')
-        return { systemInstruction: base, userQuery: `Create a 7-slide presentation on "${lesson}" in ${outputLanguage}. Return JSON.` };
-      else
-        return { systemInstruction: base, userQuery: `Generate a text summary for "${lesson}" in ${outputLanguage}.` };
+
+      if (type === 'presentation') {
+        return {
+          systemInstruction: base,
+          userQuery: `
+Please generate a presentation on "${lesson}" in ${outputLanguage}. 
+The output MUST be valid JSON only (no extra text). 
+Format as an array of 7 slides:
+
+[
+  {
+    "slideTitle": "Title",
+    "keyPoints": ["Point 1", "Point 2"],
+    "visualIdea": "Image description"
+  },
+  ...
+]
+
+Ensure meaningful titles, key points, and visual ideas.
+`
+        };
+      } else {
+        return {
+          systemInstruction: base,
+          userQuery: `Generate a text summary for "${lesson}" in ${outputLanguage}.`
+        };
+      }
     }
 
     function renderSlides(slides, lang) {
       outputContainer.innerHTML = "";
       const isRTL = lang.includes("Arabic");
+
       slides.forEach(async (slide, i) => {
         const card = document.createElement("div");
         card.className = `p-6 bg-white rounded-xl shadow-md border-t-4 border-yellow-400 ${isRTL ? 'rtl' : ''}`;
@@ -138,14 +162,22 @@
         `;
         outputContainer.appendChild(card);
 
-        const imgUrl = await fetchGoogleImage(slide.visualIdea);
-        if (imgUrl) {
-          const img = document.createElement("img");
-          img.src = imgUrl;
-          img.className = "rounded-lg shadow-md w-full max-w-md mx-auto mt-3";
-          card.querySelector(".imageContainer").appendChild(img);
-        }
+        const imageContainer = card.querySelector(".imageContainer");
+        fetchGoogleImage(slide.visualIdea).then(imgUrl => {
+          if (imgUrl) {
+            const img = document.createElement("img");
+            img.src = imgUrl;
+            img.className = "rounded-lg shadow-md w-full max-w-md mx-auto mt-3";
+            imageContainer.appendChild(img);
+          } else {
+            const placeholder = document.createElement("div");
+            placeholder.className = "w-full max-w-md h-40 flex items-center justify-center bg-gray-200 text-gray-500 rounded-lg mx-auto mt-3 italic text-sm";
+            placeholder.textContent = "No image available";
+            imageContainer.appendChild(placeholder);
+          }
+        });
       });
+
       MathJax.typesetPromise();
     }
 
@@ -161,7 +193,10 @@
       generateBtn.disabled = true;
 
       const { systemInstruction, userQuery } = buildPrompts(grade, subject, lesson, type, lang);
-      const payload = { contents: [{ parts: [{ text: userQuery }] }], systemInstruction: { parts: [{ text: systemInstruction }] } };
+      const payload = { 
+        contents: [{ parts: [{ text: userQuery }] }], 
+        systemInstruction: { parts: [{ text: systemInstruction }] } 
+      };
 
       try {
         const res = await fetch(GEMINI_URL, {
@@ -170,13 +205,31 @@
           body: JSON.stringify(payload)
         });
         const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+        let text = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
         loadingIndicator.classList.add("hidden");
         generateBtn.disabled = false;
 
-        if (type === "presentation") renderSlides(JSON.parse(text), lang);
-        else outputContainer.innerHTML = `<p class="p-4 bg-gray-50 border-l-4 border-blue-900 rounded-r-lg whitespace-pre-wrap">${text}</p>`;
+        if (type === "presentation") {
+          let slides;
+          try {
+            // Strip code fences if present
+            let cleanedText = text.trim().replace(/^```json\s*/, '').replace(/```$/, '');
+            slides = JSON.parse(cleanedText);
+            if (!Array.isArray(slides)) throw new Error("Not an array");
+          } catch (err) {
+            console.error("Failed to parse JSON:", text);
+            outputContainer.innerHTML = `<p class="text-red-500">Failed to parse presentation JSON. Raw content:<br>${text}</p>`;
+            return;
+          }
+          renderSlides(slides, lang);
+
+        } else {
+          outputContainer.innerHTML = `<p class="p-4 bg-gray-50 border-l-4 border-blue-900 rounded-r-lg whitespace-pre-wrap">${text}</p>`;
+        }
+
       } catch (err) {
+        console.error(err);
         outputContainer.innerHTML = `<p class="text-red-500 text-center">Error generating content: ${err}</p>`;
         loadingIndicator.classList.add("hidden");
         generateBtn.disabled = false;
